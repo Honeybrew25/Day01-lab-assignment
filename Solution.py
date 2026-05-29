@@ -7,6 +7,7 @@ COST_PER_1K_OUTPUT_TOKENS = {
     "gpt-4o-mini": 0.0006,
 }
 
+
 def call_openai(
     prompt: str,
     model: str = "gpt-4o",
@@ -16,20 +17,14 @@ def call_openai(
 ) -> tuple[str, float]:
 
     client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url="https://openrouter.ai/api/v1"
-)
+        api_key=os.getenv("OPENAI_API_KEY"), base_url="https://openrouter.ai/api/v1"
+    )
 
     start_time = time.perf_counter()
 
     response = client.chat.completions.create(
         model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
+        messages=[{"role": "user", "content": prompt}],
         temperature=temperature,
         top_p=top_p,
         max_tokens=max_tokens,
@@ -41,10 +36,9 @@ def call_openai(
 
     return response_text, latency
 
+
 # TEST NHANH
-response, latency = call_openai(
-    prompt="Hello, introduce yourself."
-)
+response, latency = call_openai(prompt="Hello, introduce yourself.")
 
 print(response)
 print(f"Latency: {latency:.2f}s")
@@ -64,10 +58,10 @@ def call_openai_mini(
         top_p=top_p,
         max_tokens=max_tokens,
     )
+
+
 response, latency = call_openai_mini(
-    prompt="What is Python?",
-    temperature=0.7,
-    max_tokens=50
+    prompt="What is Python?", temperature=0.7, max_tokens=50
 )
 
 print("Response:")
@@ -86,9 +80,9 @@ def compare_models(prompt: str) -> dict:
     estimated_tokens = len(gpt4o_response.split()) / 0.75
 
     # Estimate cost
-    gpt4o_cost_estimate = (
-        estimated_tokens / 1000
-    ) * COST_PER_1K_OUTPUT_TOKENS["gpt-4o"]
+    gpt4o_cost_estimate = (estimated_tokens / 1000) * COST_PER_1K_OUTPUT_TOKENS[
+        "gpt-4o"
+    ]
 
     return {
         "gpt4o_response": gpt4o_response,
@@ -98,9 +92,11 @@ def compare_models(prompt: str) -> dict:
         "gpt4o_cost_estimate": gpt4o_cost_estimate,
     }
 
+
 result = compare_models("Explain machine learning in one sentence.")
 
 print(result)
+
 
 def streaming_chatbot() -> None:
     history = []
@@ -116,17 +112,12 @@ def streaming_chatbot() -> None:
             break
 
         # Add user message to history
-        history.append({
-            "role": "user",
-            "content": user_input
-        })
+        history.append({"role": "user", "content": user_input})
 
         print("Assistant: ", end="", flush=True)
 
         stream = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=history,
-            stream=True
+            model=OPENAI_MODEL, messages=history, stream=True
         )
 
         assistant_reply = ""
@@ -141,10 +132,7 @@ def streaming_chatbot() -> None:
         print("\n")
 
         # Save assistant response
-        history.append({
-            "role": "assistant",
-            "content": assistant_reply
-        })
+        history.append({"role": "assistant", "content": assistant_reply})
 
         # Keep only last 3 turns
         history = history[-6:]
